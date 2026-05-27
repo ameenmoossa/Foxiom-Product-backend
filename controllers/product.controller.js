@@ -10,29 +10,43 @@ exports.getProduct = async (req, res) => {
   if (!product) return res.status(404).json({ message: 'Not found' });
   res.json(product);
 };
-
 exports.createProduct = async (req, res) => {
   try {
-    const data = req.body;
-    if (req.file) data.icon_url = `/uploads/${req.file.filename}`;
+    const data = { ...req.body };
+    if (req.files?.icon) data.icon_url = `/uploads/${req.files.icon[0].filename}`;  // ← changed
+    
+    if (data.use_cases && typeof data.use_cases === 'string') {
+      data.use_cases = JSON.parse(data.use_cases);
+    }
+    if (req.files?.media_images) {
+      data.media = req.files.media_images.map(f => `/uploads/${f.filename}`);
+    }
+
     const product = await Product.create(data);
     res.status(201).json(product);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(400).json({ message: err.message });
   }
 };
 
 exports.updateProduct = async (req, res) => {
   try {
-    const data = req.body;
-    if (req.file) data.icon_url = `/uploads/${req.file.filename}`;
+    const data = { ...req.body };
+    if (req.files?.icon) data.icon_url = `/uploads/${req.files.icon[0].filename}`;  // ← changed
+
+    if (data.use_cases && typeof data.use_cases === 'string') {
+      data.use_cases = JSON.parse(data.use_cases);
+    }
+    if (req.files?.media_images) {
+      data.media = req.files.media_images.map(f => `/uploads/${f.filename}`);
+    }
+
     const product = await Product.findByIdAndUpdate(req.params.id, data, { new: true });
     res.json(product);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(400).json({ message: err.message });
   }
 };
-
 exports.updateStatus = async (req, res) => {
   try {
     const product = await Product.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });

@@ -13,8 +13,9 @@ const upload = multer({ storage });
 
 router.get('/', auth, getProducts);
 router.get('/:id', auth, getProduct);
-router.post('/', auth, role('admin'), upload.single('icon'), createProduct);
-router.put('/:id', auth, role('admin'), upload.single('icon'), updateProduct);
+// With this:
+router.post('/', auth, role('admin'), upload.fields([{ name: 'icon', maxCount: 1 }, { name: 'media_images', maxCount: 5 }]), createProduct);
+router.put('/:id', auth, role('admin'), upload.fields([{ name: 'icon', maxCount: 1 }, { name: 'media_images', maxCount: 5 }]), updateProduct);
 router.patch('/:id/status', auth, role('admin'), updateStatus);
 router.patch('/reorder', auth, role('admin'), reorderProducts);
 router.delete('/:id', auth, role('admin'), deleteProduct);
