@@ -56,6 +56,7 @@ app.use((req, res, next) => {
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/users', require('./routes/user.routes'));
 app.use('/api/products', require('./routes/product.routes'));
+app.use('/api/products/:id/access-links', require('./routes/accessLink.routes'));
 app.use('/api/products/:id/credentials', require('./routes/credential.routes'));
 app.use('/api/products/:id/feedback', require('./routes/feedback.routes'));
 app.use('/api/notifications', require('./routes/notification.routes'));

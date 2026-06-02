@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const credentialSchema = new mongoose.Schema({
+const accessLinkSchema = new mongoose.Schema({
   product_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
   environment: { type: String, enum: ['production', 'development'], required: true },
   platform: {
@@ -11,6 +11,6 @@ const credentialSchema = new mongoose.Schema({
   url: { type: String, required: true },
 }, { timestamps: true });
 
-credentialSchema.index({ product_id: 1 });
+accessLinkSchema.index({ product_id: 1, environment: 1 });
 
-module.exports = mongoose.model('Credential', credentialSchema);
+module.exports = mongoose.model('AccessLink', accessLinkSchema);

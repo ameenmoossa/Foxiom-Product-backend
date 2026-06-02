@@ -1,14 +1,55 @@
 const Product = require('../models/Product');
+const AccessLink = require('../models/AccessLink');
+const { groupLinks } = require('./accessLink.controller');
+
+const attachAccessLinks = async (product) => {
+  if (!product) return product;
+
+  const plainProduct = product.toObject ? product.toObject() : product;
+  const links = await AccessLink.find({ product_id: plainProduct._id }).sort('environment platform');
+
+  return {
+    ...plainProduct,
+    ...groupLinks(links),
+  };
+};
 
 exports.getProducts = async (req, res) => {
-  const products = await Product.find({ status: { $ne: 'Archived' } }).sort('sort_order');
-  res.json(products);
+  try {
+    const products = await Product.find({ status: { $ne: 'Archived' } }).sort('sort_order');
+    const links = await AccessLink.find({
+      product_id: { $in: products.map(product => product._id) },
+    }).sort('environment platform');
+
+    const linksByProductId = links.reduce((map, link) => {
+      const productId = String(link.product_id);
+      if (!map[productId]) map[productId] = [];
+      map[productId].push(link);
+      return map;
+    }, {});
+
+    const productsWithLinks = products.map(product => {
+      const plainProduct = product.toObject();
+      return {
+        ...plainProduct,
+        ...groupLinks(linksByProductId[String(product._id)] || []),
+      };
+    });
+
+    res.json(productsWithLinks);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
 exports.getProduct = async (req, res) => {
-  const product = await Product.findById(req.params.id);
-  if (!product) return res.status(404).json({ message: 'Not found' });
-  res.json(product);
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Not found' });
+    res.json(await attachAccessLinks(product));
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 exports.createProduct = async (req, res) => {
   try {
