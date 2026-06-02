@@ -4,6 +4,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 const path = require('path');
+const fs = require('fs');
 const helmet = require('helmet');
 const morgan = require('morgan');
 
@@ -11,12 +12,29 @@ dotenv.config();
 connectDB();
 
 const app = express();
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+  setHeaders: (res, filePath) => {
+    try {
+      const buffer = Buffer.alloc(12);
+      const fd = fs.openSync(filePath, 'r');
+      fs.readSync(fd, buffer, 0, 12, 0);
+      fs.closeSync(fd);
+
+      if (buffer.toString('ascii', 0, 4) === 'RIFF' && buffer.toString('ascii', 8, 12) === 'WEBP') {
+        res.setHeader('Content-Type', 'image/webp');
+      }
+    } catch {
+      // Fall back to Express' default static headers.
+    }
+  },
+}));
 
 // NoSQL injection sanitizer
 app.use((req, res, next) => {
