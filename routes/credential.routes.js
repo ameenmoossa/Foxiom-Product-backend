@@ -1,11 +1,45 @@
 const router = require('express').Router({ mergeParams: true });
-const { getAccessLinks, addAccessLink, updateAccessLink, deleteAccessLink } = require('../controllers/accessLink.controller');
 const auth = require('../middleware/auth');
 const role = require('../middleware/role');
 
-router.get('/', auth, getAccessLinks);
-router.post('/', auth, role('admin'), addAccessLink);
-router.put('/:credId', auth, role('admin'), updateAccessLink);
-router.delete('/:credId', auth, role('admin'), deleteAccessLink);
+const {
+  getCredentials,
+  createCredential,
+  updateCredential,
+  deleteCredential,
+} = require('../controllers/credential.controller');
+
+// GET /api/products/:id/credentials — authenticated users only (admin + staff)
+router.get(
+  '/',
+  auth,
+  role('admin', 'staff'),
+  getCredentials
+);
+
+// POST /api/products/:id/credentials — admin only
+router.post(
+  '/',
+  auth,
+  role('admin'),
+  createCredential
+);
+
+// PUT /api/credentials/:credId — admin only
+router.put(
+  '/:credId',
+  auth,
+  role('admin'),
+  updateCredential
+);
+
+// DELETE /api/credentials/:credId — admin only
+router.delete(
+  '/:credId',
+  auth,
+  role('admin'),
+  deleteCredential
+);
 
 module.exports = router;
+
