@@ -54,8 +54,10 @@ exports.getProduct = async (req, res) => {
 exports.createProduct = async (req, res) => {
   try {
     const data = { ...req.body };
-    if (req.files?.icon) data.icon_url = `/uploads/${req.files.icon[0].filename}`;  // ← changed
-    
+if (data.icon_base64) {
+  data.icon_url = data.icon_base64;
+  delete data.icon_base64;
+}    
     if (data.use_cases && typeof data.use_cases === 'string') {
       data.use_cases = JSON.parse(data.use_cases);
     }
@@ -73,8 +75,10 @@ exports.createProduct = async (req, res) => {
 exports.updateProduct = async (req, res) => {
   try {
     const data = { ...req.body };
-    if (req.files?.icon) data.icon_url = `/uploads/${req.files.icon[0].filename}`;  // ← changed
-
+if (data.icon_base64) {
+  data.icon_url = data.icon_base64;
+  delete data.icon_base64;
+}
     if (data.use_cases && typeof data.use_cases === 'string') {
       data.use_cases = JSON.parse(data.use_cases);
     }
