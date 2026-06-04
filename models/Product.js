@@ -4,7 +4,7 @@ const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   tagline: { type: String, maxlength: 80 },
   description: { type: String },
-  category: { type: String, enum: ['SaaS', 'Internal Tool', 'API', 'Mobile App', 'Other'] },
+category: { type: String, enum: ['Development', 'App', 'SaaS', 'Internal Tool', 'API', 'Mobile App', 'Other'] },
   icon_url: { type: String },
   status: { type: String, enum: ['Active', 'Draft', 'Beta', 'Archived'], default: 'Draft' },
   tech_stack: [String],
