@@ -16,7 +16,10 @@ const attachAccessLinks = async (product) => {
 
 exports.getProducts = async (req, res) => {
   try {
-    const products = await Product.find({ status: { $ne: 'Archived' } }).sort('sort_order');
+const isAdmin = req.query.includeArchived === 'true';
+const filter = isAdmin ? {} : { status: { $ne: 'Archived' } };
+const products = await Product.find(filter).sort('sort_order');
+
     const links = await AccessLink.find({
       product_id: { $in: products.map(product => product._id) },
     }).sort('environment platform');
