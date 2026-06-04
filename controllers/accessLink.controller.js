@@ -2,8 +2,8 @@ const AccessLink = require('../models/AccessLink');
 const AuditLog = require('../models/AuditLog');
 
 const platformByEnvironment = {
-  production: ['android', 'ios', 'apk'],
-  development: ['website', 'staging', 'testing'],
+  production: ['android', 'ios', 'apk', 'website'],
+  development: ['android', 'ios', 'apk', 'website', 'staging', 'testing'],
 };
 
 const normalizeAccessLink = (body, productId) => {
